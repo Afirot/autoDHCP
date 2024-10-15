@@ -27,6 +27,12 @@ def ultimo_num():
         else:
             return(0)    
 
+#Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
+def comp():
+    if len(ip) != len(mac):
+        print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
+        exit()
+
 #Esta parte lee el archivo con la lista de ips y macs y lo mete todo a lo bruto en una lista
 with open(rut_lista, "r") as file:
     cadena = file.read()
@@ -39,10 +45,7 @@ for i in range(0, len(lista)):
     elif re.search(patron_mac, lista[i]):
         mac.append(lista[i])
 
-#Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
-if len(ip) != len(mac):
-    print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
-    exit()
+comp()
 
 #Esta parte escribe todo en el archivo de configuracion
 with open(rut_conf, "a") as file:
