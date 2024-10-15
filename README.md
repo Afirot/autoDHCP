@@ -1,4 +1,5 @@
 --Esp--
+
 Este script sirve para introducir grandes cantidades de hosts, siendo dada la lista de sus ips y sus respectivas macs asociadas en un archivo .txt, al archivo de configuracion de DHCPD de isc-dhcp-server.
 
 --Eng--
