@@ -13,25 +13,11 @@ dns = "8.8.8.8" #Servidor DNS
 
 ip = []
 mac = []
-patron = r"HOST \d" #Este patron se usara para saber el ultimo host ya registrado en el archivo de configuracion en la funcion ultimo_num
+patron = r"HOST \d+" #Este patron se usara para saber el ultimo host ya registrado en el archivo de configuracion en la funcion ultimo_num
 patron_ip = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
 patron_mac = r'\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\b'
 
-#Esta funcion buscara el ultimo numero del archivo de configuracion
-
-def ultimo_num():
-    with open(rut_conf, "r") as file:
-        lista1 = re.findall(patron, file.read())
-        if len(lista1) > 0: #Es necesario usar un if, ya que si el archivo esta vacio, dara un fallo al intentar buscar un elemento de una lista que no existe
-            return(int(re.findall(r"\d+", lista1[-1])[0]))
-        else:
-            return(0)    
-
-#Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
-def comp():
-    if len(ip) != len(mac):
-        print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
-        exit()
+#Listas
 
 #Esta parte lee el archivo con la lista de ips y macs y lo mete todo a lo bruto en una lista
 with open(rut_lista, "r") as file:
@@ -45,16 +31,40 @@ for i in range(0, len(lista)):
     elif re.search(patron_mac, lista[i]):
         mac.append(lista[i])
 
-comp()
+#Definicion de funciones
+
+#Esta funcion buscara el ultimo numero del archivo de configuracion
+
+def ultimo_num():
+    with open(rut_conf, "r") as file:
+        lista1 = re.findall(patron, file.read())
+        if len(lista1) > 0: #Es necesario usar un if, ya que si el archivo esta vacio, dara un fallo al intentar buscar un elemento de una lista que no existe
+            return(int(re.findall(r"\d+", lista1[-1])[0]))
+        else:
+            return(0)
+
+
+#Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
+
+def comp(comando):
+    if len(ip) != len(mac):
+        print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
+    else:
+        comando
 
 #Esta parte escribe todo en el archivo de configuracion
-with open(rut_conf, "a") as file:
-    for i in range(0, len(ip)):
-        file.write(f"#HOST {ultimo_num() + i + 1} \n")
-        file.write(f"host {ultimo_num() + i + 1} {{ \n")
-        file.write(f"hardware ethernet {mac[i]} ; \n")
-        file.write(f"fixe-address {ip[i]};\n")
-        file.write(f"option domain-name-server {dns};\n")
-        file.write("}\n\n")
 
-print("La configuracion ha finalizado correctamente")
+def escritura():
+    with open(rut_conf, "a") as file:
+        for i in range(0, len(ip)):
+            file.write(f"#HOST {ultimo_num() + i + 1} \n")
+            file.write(f"host {ultimo_num() + i + 1} {{ \n")
+            file.write(f"hardware ethernet {mac[i]} ; \n")
+            file.write(f"fixe-address {ip[i]};\n")
+            file.write(f"option domain-name-server {dns};\n")
+            file.write("}\n\n")
+    print("La configuracion ha finalizado correctamente")
+
+#Llamada de funciones
+
+comp(escritura())
