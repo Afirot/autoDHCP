@@ -46,11 +46,10 @@ def ultimo_num():
 
 #Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
 
-def comp(comando):
+def comp():
     if len(ip) != len(mac):
         print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
-    else:
-        comando
+        exit()
 
 #Esta parte escribe todo en el archivo de configuracion
 
@@ -67,4 +66,5 @@ def escritura():
 
 #Llamada de funciones
 
-comp(escritura())
+comp()
+escritura()
