@@ -5,9 +5,9 @@ import re
 
 ##--------------------------------Cambie estas variables--------------------------------------------------------------
 
-rut_conf = "/etc/dhcp/dhcpd.conf" #Ruta hacia el archivo de configuracion, normalmente es /etc/dhcp/dhcpd.conf
-rut_lista = "lista.txt" #Ruta hacia la lista de direcciones, para que el programa funcione, por cada IP debe haber una MAC
-dns = "8.8.8.8" #Servidor DNS
+RUT_CONF = "/etc/dhcp/dhcpd.conf" #Ruta hacia el archivo de configuracion, normalmente es /etc/dhcp/dhcpd.conf
+RUT_LISTA = "lista.txt" #Ruta hacia la lista de direcciones, para que el programa funcione, por cada IP debe haber una MAC
+DNS = "8.8.8.8" #Servidor DNS
 
 ##---------------------------------------------------------------------------------------------------------------------
 
@@ -20,7 +20,7 @@ patron_mac = r'\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\b'
 #Listas
 
 #Esta parte lee el archivo con la lista de ips y macs y lo mete todo a lo bruto en una lista
-with open(rut_lista, "r") as file:
+with open(RUT_LISTA, "r") as file:
     cadena = file.read()
     lista = cadena.split()
 
@@ -36,7 +36,7 @@ for i in range(0, len(lista)):
 #Esta funcion buscara el ultimo numero del archivo de configuracion
 
 def ultimo_num():
-    with open(rut_conf, "r") as file:
+    with open(RUT_CONF, "r") as file:
         lista1 = re.findall(patron, file.read())
         if len(lista1) > 0: #Es necesario usar un if, ya que si el archivo esta vacio, dara un fallo al intentar buscar un elemento de una lista que no existe
             return(int(re.findall(r"\d+", lista1[-1])[0]))
@@ -55,13 +55,13 @@ def comp(comando):
 #Esta parte escribe todo en el archivo de configuracion
 
 def escritura():
-    with open(rut_conf, "a") as file:
+    with open(RUT_CONF, "a") as file:
         for i in range(0, len(ip)):
             file.write(f"#HOST {ultimo_num() + i + 1} \n")
             file.write(f"host {ultimo_num() + i + 1} {{ \n")
             file.write(f"hardware ethernet {mac[i]} ; \n")
             file.write(f"fixe-address {ip[i]};\n")
-            file.write(f"option domain-name-server {dns};\n")
+            file.write(f"option domain-name-server {DNS};\n")
             file.write("}\n\n")
     print("La configuracion ha finalizado correctamente")
 
