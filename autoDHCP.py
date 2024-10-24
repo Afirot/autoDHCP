@@ -1,72 +1,112 @@
 #Autor : Ignacio Sánchez Pérez
 #Descripcion: Este script sirve para configurar automaticamente los hosts en DHCPD en linux mediante una lista de direcciones mac e ip en formato txt.
-
-import re
-
-##--------------------------------Cambie estas variables--------------------------------------------------------------
-
-RUT_CONF = "/etc/dhcp/dhcpd.conf" #Ruta hacia el archivo de configuracion, normalmente es /etc/dhcp/dhcpd.conf
-RUT_LISTA = "lista.txt" #Ruta hacia la lista de direcciones, para que el programa funcione, por cada IP debe haber una MAC
-DNS = "8.8.8.8" #Servidor DNS
-
-##---------------------------------------------------------------------------------------------------------------------
-
-ip = []
-mac = []
-patron = r"HOST \d+" #Este patron se usara para saber el ultimo host ya registrado en el archivo de configuracion en la funcion ultimo_num
-patron_ip = r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b'
-patron_mac = r'\b(?:[0-9A-Fa-f]{2}:){5}[0-9A-Fa-f]{2}\b'
-
-#Listas
-
-#Esta parte lee el archivo con la lista de ips y macs y lo mete todo a lo bruto en una lista
-with open(RUT_LISTA, "r") as file:
-    cadena = file.read()
-    lista = cadena.split()
-
-#Esta parte divide las ips y las macs en dos listas distintas
-for i in range(0, len(lista)):
-    if re.search(patron_ip, lista[i]):
-        ip.append(lista[i])
-    elif re.search(patron_mac, lista[i]):
-        mac.append(lista[i])
-
-#Definicion de funciones
-
-#Esta funcion buscara el ultimo numero del archivo de configuracion
-
-def ultimo_num():
-    with open(RUT_CONF, "r") as file:
-        lista1 = re.findall(patron, file.read())
-        if len(lista1) > 0: #Es necesario usar un if, ya que si el archivo esta vacio, dara un fallo al intentar buscar un elemento de una lista que no existe
-            return(int(re.findall(r"\d+", lista1[-1])[0]))
-        else:
-            return(0)
+import sys
+import os
 
 
-#Este comparador se asegura de que la lista este en formato correcto, es decir, una mac por cada ip, si no es asi, saltara un mensaje de error
+def leer(archivo): #Esta funcion leera el archivo que se haya transmitido como argumento y almacenara su contenido en una lista, siendo dividido el texto por los saltos de linea
+    global lista
+    with open(archivo, "r") as file:
+        cadena = file.read()
+        lista = cadena.split("\n")
+        del lista[0]
 
-def comp_listas():
-    if len(ip) != len(mac):
+def compr_arg(): #Esta funcion comprueba que el numero de argumentos es correcto, en caso de serlo, almacenara el nombre del fichero en fichero, en caso de no serlo, enviara un error y devolbera false
+    global fichero
+    if len(sys.argv) == 2:
+        fichero = sys.argv[1]
         return True
     else:
-        print("ERROR, CORRIJA EL FORMATO DE LA LISTA")
+        print("ERROR, DEBE DE AÑADIR SOLO EL NOMBRE DEL ARCHIVO")
         return False
 
-#Esta parte escribe todo en el archivo de configuracion
+def compr_fichero(): #Esta funcion comprueba si el archivo transmitido como argumento existe, en caso de existir, devuelve True, en caso de no existir, enviara un mensaje de error y devolbera False.
+    if os.path.isfile(fichero):
+        return True
+    else:
+        print("ERROR, EL ARCHIVO NO EXISTE")
+        return False
+    
+def sep_list(lista): #Esta funcion busca separar las listas en distintos array en funcion del tipo de dispositivos
+    global wireless, desktop, server
+    for i in lista:
+        listaRota = i.split(";")
+        
+        if listaRota[2] == "Wireless":
+            wireless.append(i)
+        elif listaRota[2] == "Desktop":
+            desktop.append(i)
+        elif listaRota[2] == "Server":
+            server.append(i)
 
-def escritura():
+def cre_list(lista): #Esta funcion tomara la lista creada en la funcion leer() y dividira su contenido en las listas dispositivo, mac, tipo.
+    global dispositivo, mac, tipo, ip
+    dispositivo = []
+    mac = []
+    tipo = []
+    ip = []
+    for i in lista:
+        listaFinal = i.split(";")
+        dispositivo.append(listaFinal[0])
+        mac.append(listaFinal[1])
+        tipo.append(listaFinal[2])
+        
+def repre(lis1, lis2, lis4): # Esta funcion sirve para escribir todo en el archibo de configuracion
+
     with open(RUT_CONF, "a") as file:
-        for i in range(0, len(ip)):
-            file.write(f"#HOST {ultimo_num() + i + 1} \n")
-            file.write(f"host {ultimo_num() + i + 1} {{ \n")
-            file.write(f"hardware ethernet {mac[i]} ; \n")
-            file.write(f"fixe-address {ip[i]};\n")
-            file.write(f"option domain-name-server {DNS};\n")
-            file.write("}\n\n")
-    print("La configuracion ha finalizado correctamente")
+            for i in range(0, len(lis1)):
+                file.write(f"#HOST {lis1[i]}\n")
+                file.write(f"{lis1[i]} {{ \n")
+                file.write(f"hardware ethernet {lis2[i]} ; \n")
+                file.write(f"fixed-address {lis4[i]};\n")
+                file.write("}\n\n")
+                
 
-#Llamada de funciones
 
-if comp_listas():
-    escritura
+def asig_ip(dir_red, minimo, maximo): #
+    ip_list = []
+    for i in range (minimo, maximo):
+        if i < 255:
+            
+            new_ip = str(dir_red)+str(i)
+            ip_list.append(new_ip)
+    return ip_list
+
+
+def main(): # Esta funcion llama al resto
+    global fichero, lista, dispositivo, mac, tipo, wireless, desktop, server, RUT_CONF
+    
+    RUT_CONF = "configuracion.txt"
+    fichero = "IP_Fijas_17102024.txt"
+    lista = []
+    dispositivo = []
+    mac = []
+    tipo = []
+    mascara = "10.1.0."
+
+    wireless = []
+    desktop = []
+    server = []
+
+
+    if compr_arg() and compr_fichero(): #Si los dos comprobadores son True, se inicia main.
+        print("Iniciando script ...")
+        leer(fichero)
+        sep_list(lista)
+
+        cre_list(wireless)
+        ip_wireless = asig_ip(mascara, 12, 40)
+        repre(dispositivo, mac, ip_wireless)
+
+        cre_list(desktop)
+        ip_desktop = asig_ip(mascara, 50, 80)
+        repre(dispositivo, mac, ip_desktop)
+
+        cre_list(server)
+        ip_server = asig_ip(mascara, 230, 240)
+        repre(dispositivo, mac, ip_server)
+
+        print("Configuracion finalizada")
+    
+    
+main()
