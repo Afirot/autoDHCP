@@ -51,15 +51,17 @@ def cre_list(lista): #Esta funcion tomara la lista creada en la funcion leer() y
         mac.append(listaFinal[1])
         tipo.append(listaFinal[2])
         
-def repre(lis1, lis2, lis4): # Esta funcion sirve para escribir todo en el archibo de configuracion
+def repre(grupo, lis1, lis2, lis4): # Esta funcion sirve para escribir todo en el archibo de configuracion
 
     with open(RUT_CONF, "a") as file:
+            file.write(f"group {grupo}{{\n")
             for i in range(0, len(lis1)):
-                file.write(f"#HOST {lis1[i]}\n")
-                file.write(f"{lis1[i]} {{ \n")
-                file.write(f"hardware ethernet {lis2[i]} ; \n")
-                file.write(f"fixed-address {lis4[i]};\n")
-                file.write("}\n\n")
+                file.write(f"\t#HOST {lis1[i]}\n")
+                file.write(f"\t{lis1[i]} {{ \n")
+                file.write(f"\thardware ethernet {lis2[i]} ; \n")
+                file.write(f"\tfixed-address {lis4[i]};\n")
+                file.write("\t}\n\n")
+            file.write("}\n")
                 
 
 
@@ -77,7 +79,7 @@ def main(): # Esta funcion llama al resto
     global fichero, lista, dispositivo, mac, tipo, wireless, desktop, server, RUT_CONF
     
     RUT_CONF = "/etc/dhcp/dhcpd.conf"
-    fichero = "IP_Fijas_17102024.txt"
+    fichero = sys.argv[1]
     lista = []
     dispositivo = []
     mac = []
@@ -95,16 +97,16 @@ def main(): # Esta funcion llama al resto
         sep_list(lista)
 
         cre_list(wireless)
-        ip_wireless = asig_ip(mascara, 12, 40)
-        repre(dispositivo, mac, ip_wireless)
+        ip_wireless = asig_ip( mascara, 12, 40)
+        repre("wireless", dispositivo, mac, ip_wireless)
 
         cre_list(desktop)
         ip_desktop = asig_ip(mascara, 50, 80)
-        repre(dispositivo, mac, ip_desktop)
+        repre("desktop", dispositivo, mac, ip_desktop)
 
         cre_list(server)
         ip_server = asig_ip(mascara, 230, 240)
-        repre(dispositivo, mac, ip_server)
+        repre("server", dispositivo, mac, ip_server)
 
         print("Configuracion finalizada")
     
