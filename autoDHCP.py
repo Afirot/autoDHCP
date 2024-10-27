@@ -54,18 +54,18 @@ def cre_list(lista): #Esta funcion tomara la lista creada en la funcion leer() y
 def repre(grupo, lis1, lis2, lis4): # Esta funcion sirve para escribir todo en el archibo de configuracion
 
     with open(RUT_CONF, "a") as file:
-            file.write(f"group {grupo}{{\n")
-            for i in range(0, len(lis1)):
-                file.write(f"\t#HOST {lis1[i]}\n")
-                file.write(f"\t{lis1[i]} {{ \n")
-                file.write(f"\thardware ethernet {lis2[i]} ; \n")
-                file.write(f"\tfixed-address {lis4[i]};\n")
-                file.write("\t}\n\n")
-            file.write("}\n")
+        file.write(f"group {grupo}{{\n")
+        for i in range(0, len(lis1)):
+            file.write(f"\t#HOST {lis1[i]}\n")
+            file.write(f"\t{lis1[i]} {{ \n")
+            file.write(f"\thardware ethernet {lis2[i]} ; \n")
+            file.write(f"\tfixed-address {lis4[i]};\n")
+            file.write("\t}\n\n")
+        file.write("}\n")
                 
 
 
-def asig_ip(dir_red, minimo, maximo): #
+def asig_ip(dir_red, minimo, maximo): #Esta funcion crea las ips en el rango especificado, en caso de ser una ip </24 debera añadirse otro for
     ip_list = []
     for i in range (minimo, maximo):
         if i < 255:
@@ -97,7 +97,7 @@ def main(): # Esta funcion llama al resto
         sep_list(lista)
 
         cre_list(wireless)
-        ip_wireless = asig_ip( mascara, 12, 40)
+        ip_wireless = asig_ip(mascara, 12, 40)
         repre("wireless", dispositivo, mac, ip_wireless)
 
         cre_list(desktop)
