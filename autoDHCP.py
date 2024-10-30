@@ -89,7 +89,7 @@ def main(): # Esta funcion llama al resto
     global fichero, lista, dispositivo, mac, tipo, wireless, desktop, server, RUT_CONF
     
     RUT_CONF = "/etc/dhcp/dhcpd.conf"
-    fichero = "IP_Fijas_17102024.txt"
+    fichero = sys.argv[1]
     lista = []
     dispositivo = []
     mac = []
