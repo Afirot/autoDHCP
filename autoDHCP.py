@@ -56,7 +56,7 @@ def repre(grupo, lis1, lis2, lis3, exis): # Esta funcion sirve para escribir tod
     with open(RUT_CONF, "a") as file:
         file.write(f"group {grupo} {{\n")
         for i in range(0, len(lis1)):
-            if lis2[i] not in exis:
+            if lis2[i] not in exis: #Aqui compruebo si la mac que quiero introducir ya existe en el archivo, y si ese es el caso, da un mensaje indicandolo y no la imprime en el archivo
                 file.write(f"\t#HOST {lis1[i]}\n")
                 file.write(f"\t{lis1[i]} {{\n")
                 file.write(f"\thardware ethernet {lis2[i]} ; \n")
